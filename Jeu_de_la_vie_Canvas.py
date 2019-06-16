@@ -21,9 +21,9 @@ import random
 import time
 
 global width_grid, length_grid, length_square, Lx, Ly,entire_time,period_time
-width_grid = 810
-length_grid = 810
-length_square = 20
+width_grid = 410
+length_grid = 410
+length_square = 10
 Lx = width_grid//length_square
 Ly = length_grid//length_square
 entire_time=100
@@ -39,9 +39,9 @@ class ZoneAffichage(Canvas):
         Canvas.__init__(self, parent, width=w, height=l, bg=_bg, relief=RAISED, bd=5)
         self.create_rectangle(10,10,w,l,outline="black",width=2)
         for i in range(Ly):
-            self.create_line(10,length_square*i+10,w,length_square*i+10,fill="black",width = 2)
+            self.create_line(10,length_square*i+10,w,length_square*i+10,fill="black",width = 1)
         for j in range(Lx):
-            self.create_line(length_square*j+10,10,length_square*j+10,l,fill="black",width = 2)
+            self.create_line(length_square*j+10,10,length_square*j+10,l,fill="black",width = 1)
 
 
 
