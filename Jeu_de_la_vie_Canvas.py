@@ -5,6 +5,7 @@ Verdun
 """
 # -*- coding: utf-8 -*-
 
+
 """
 Le jeu se déroule sur une grille à deux dimensions.
 À chaque étape, l’évolution d’une cellule est entièrement déterminée par l’état de ses huit voisines de la façon suivante :
@@ -36,6 +37,44 @@ length_grid = 410 #length of the grid (10 + length)
 length_square = 10 #length of a square
 Lx = width_grid//length_square #number of square across the width
 Ly = length_grid//length_square #number of square across the length
+
+def generate_symbole(figure_name = "canon"):
+    """
+    Return an array including the figure.
+    """
+    if figure_name == "planeur": #PLANNEUR
+        planneur = np.zeros((3, 3))
+        planneur[1, 0] = 1
+        planneur[0, 1] = 1
+        planneur[0, 2] = 1
+        planneur[1, 2] = 1
+        planneur[2, 2] = 1
+        return planneur
+    elif figure_name == "canon": #CANON
+        canon = np.zeros((36,9))
+        canon[0:2,5:7] = 1
+        canon[11,4:7] = 1
+        canon[15:17,4:7] = 1
+        canon[12,3] = 1
+        canon[14,3] = 1
+        canon[13,2] = 1
+        canon[12,7] = 1
+        canon[14,7] = 1
+        canon[13,8] = 1
+        canon[25,0:2] = 1
+        canon[22:25,1:3] = 1
+        canon[21,2:5] = 1
+        canon[24,3] = 1
+        canon[22:25,4:6] = 1
+        canon[25,5:7] = 1
+        canon[30,1:3] = 1
+        canon[34:36,3:5] = 1
+        return canon
+    else:
+        return 0
+
+
+
 
 class ZoneAffichage(Canvas):
     """
@@ -80,6 +119,11 @@ class FenPrincipale(Tk):
         self.__zoneAffichage = ZoneAffichage(self)
         self.__zoneAffichage.pack(padx = 5,pady=5)
 
+        # figures Button : allow you to choose the figure you want to plot, restart the game
+        self.__boutonCanon = Button(self, text='Cannon', command=self.canon).pack(side=LEFT, padx=5, pady=5)
+        self.__boutonPlanneur = Button(self, text='Planeur', command=self.planeur).pack(side=LEFT, padx=5, pady=5)
+        self.__boutonRandom = Button(self, text='Random', command=self.random).pack(side=LEFT, padx=5, pady=5)
+
         # delete Button : allows you to exit the game
         self.__boutonQuitter = Button(self, text='Exit', command=self.destroy).pack(side=LEFT, padx=5, pady=5)
         # display the grid
@@ -87,6 +131,20 @@ class FenPrincipale(Tk):
         # connect the keyboard to the graphical interface and keep ready to run the method jeu_de_la_vie
         self.focus_set()
         self.bind("<Key>", self.jeu_de_la_vie)
+
+        self.__figure = "random"
+
+    def canon(self):
+        self.__figure = "canon"
+        self.restart("canon")
+
+    def planeur(self):
+        self.__figure = "planeur"
+        self.restart("planeur")
+
+    def random(self):
+        self.__figure = "random"
+        self.restart("random")
 
     def get_generation(self):
         """
@@ -99,6 +157,30 @@ class FenPrincipale(Tk):
         Modified the variable generation
         """
         self.__generation = gene
+
+    def restart(self,figure = "random"):
+        """
+        Initialize the different variables in order to start a new game.
+        """
+        if figure == "canon" or figure == "planeur":
+            self.__grid = np.zeros((Lx,Ly))
+            if figure == "canon" :
+                if Lx < 40 or Ly < 12:
+                    return self.restart("random")
+                figure_grid = generate_symbole(figure)#3x3
+                self.__grid[Lx//2-18:Lx//2+18,Ly//2-4:Ly//2+5] = figure_grid
+            elif  figure == "planeur" :
+                if Lx < 5 or Ly < 5:
+                    return self.restart("random")
+                figure_grid = generate_symbole(figure)#36x9
+                self.__grid[Lx//2-1:Lx//2+2,Ly//2-1:Ly//2+2] = figure_grid
+        else:
+            # random initialization of the grid
+            self.__grid = np.random.randint(0, 2, (Lx, Ly))
+        # initialization of the generation (number of move) and the displayed text showing this variable
+        self.__generation = 1
+        self.__text_generation.config(text="Generation : {}".format(self.__generation))
+        self.display_round()
 
     def sum_living_cell(self,x, y, current_round):
         """

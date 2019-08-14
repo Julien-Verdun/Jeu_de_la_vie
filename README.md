@@ -7,12 +7,15 @@ This code allows you to create a grid with black and white squares, randomly def
 This project has been implemented after the discovery of the game and has no other goal than trying it.
 
 
+The game allows you to generate a random grid, with both alive and dead units. You can also choose different interesting figures as the "gliders" or the "cannon" (which generate gliders).
+
+
 ## Game demonstration
 
 
-You can see examples of the game with 2 different grids (40x40 and 80x80).
+You can see examples of the game with the random mode and the cannon.
 
 
 ![Life game 40x40](jeu_de_la_vie_40x40.PNG)
 
-![Life game 80x80](jeu_de_la_vie_80x80.PNG)
+![Cannon demonstration](cannon_demonstration.PNG)
