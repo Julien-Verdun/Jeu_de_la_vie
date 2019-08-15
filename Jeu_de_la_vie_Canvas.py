@@ -50,6 +50,7 @@ def generate_symbole(figure_name = "canon"):
         planneur[1, 2] = 1
         planneur[2, 2] = 1
         return planneur
+
     elif figure_name == "canon": #CANON
         canon = np.zeros((36,9))
         canon[0:2,5:7] = 1
@@ -70,6 +71,53 @@ def generate_symbole(figure_name = "canon"):
         canon[30,1:3] = 1
         canon[34:36,3:5] = 1
         return canon
+
+    elif figure_name == "blinker": #BLINKER
+        blinker = np.ones((3,1))
+        return blinker
+
+    elif figure_name == "oscillator_alone":
+        osc = np.zeros((11,11))
+        osc[2,2:9] = 1
+        osc[8,2:9] = 1
+        osc[2:9,2] = 1
+        osc[2:9,8] = 1
+        osc[5,2] = 0
+        osc[5,8] = 0
+        osc[2,5] = 0
+        osc[8,5] = 0
+        osc[0,5] = 1
+        osc[10,5] = 1
+        osc[5,0] = 1
+        osc[5,10] = 1
+        osc[1,4:7] = 1
+        osc[9,4:7] = 1
+        osc[4:7,1] = 1
+        osc[4:7,9] = 1
+        return osc
+
+    elif figure_name == "oscillator_one_block":
+        osc = generate_symbole("oscillator_alone")
+        osc[0:2,-2:] = 1
+        return osc
+
+    elif figure_name == "oscillator_four_blocks":
+        osc = generate_symbole("oscillator_alone")
+        osc[0:2, -2:] = 1
+        osc[0:2,0:2] = 1
+        osc[-2:,0:2] = 1
+        osc[-2:,-2:] = 1
+        return osc
+
+    elif figure_name == "croix":
+        return osc
+
+    elif figure_name == "diag":
+        return osc
+
+    elif figure_name == "octogone":
+        return osc
+
     else:
         return 0
 
@@ -101,8 +149,12 @@ class FenPrincipale(Tk):
     """
     def __init__(self):
         Tk.__init__(self)
-        # random initialization of the grid
+
+        #random initialization of the grid
         self.__grid = np.random.randint(0, 2, (Lx, Ly))
+
+        self.__figure = "random"
+
         # initialization of the displayed squares
         self.__liste_squares = []
         # initialization of the generation (number of move) and the displayed text showing this variable
@@ -114,6 +166,10 @@ class FenPrincipale(Tk):
         self.__text_rules = Label(self)
         self.__text_rules.pack(side=TOP)
         self.__text_rules.config(text="Press a key to play !!")
+        #show the figure type displayed
+        self.__figure_type = Label(self)
+        self.__figure_type.pack(side=TOP)
+        self.__figure_type.config(text="Figure type : {}".format(self.__figure))
         # initialization of the graphical interface contents
         self.title('Life game')
         self.__zoneAffichage = ZoneAffichage(self)
@@ -122,6 +178,7 @@ class FenPrincipale(Tk):
         # figures Button : allow you to choose the figure you want to plot, restart the game
         self.__boutonCanon = Button(self, text='Cannon', command=self.canon).pack(side=LEFT, padx=5, pady=5)
         self.__boutonPlanneur = Button(self, text='Planeur', command=self.planeur).pack(side=LEFT, padx=5, pady=5)
+        self.__boutonOscillator = Button(self, text='Oscillator', command=self.oscillator).pack(side=LEFT, padx=5, pady=5)
         self.__boutonRandom = Button(self, text='Random', command=self.random).pack(side=LEFT, padx=5, pady=5)
 
         # delete Button : allows you to exit the game
@@ -132,19 +189,28 @@ class FenPrincipale(Tk):
         self.focus_set()
         self.bind("<Key>", self.jeu_de_la_vie)
 
-        self.__figure = "random"
-
     def canon(self):
         self.__figure = "canon"
-        self.restart("canon")
+        self.restart()
 
     def planeur(self):
         self.__figure = "planeur"
-        self.restart("planeur")
+        self.restart()
 
     def random(self):
         self.__figure = "random"
-        self.restart("random")
+        self.restart()
+
+    def oscillator(self):
+        list_osci = ["blinker","oscillator_alone","oscillator_one_block","oscillator_four_blocks"]
+        if self.__figure in list_osci:
+            if self.__figure != "oscillator_four_blocks":
+                self.__figure = list_osci[list_osci.index(self.__figure)+1]
+            else :
+                self.__figure = "blinker"
+        else:
+            self.__figure = "oscillator_alone"
+        self.restart()
 
     def get_generation(self):
         """
@@ -158,25 +224,37 @@ class FenPrincipale(Tk):
         """
         self.__generation = gene
 
-    def restart(self,figure = "random"):
+    def restart(self):
         """
         Initialize the different variables in order to start a new game.
         """
-        if figure == "canon" or figure == "planeur":
+        if self.__figure in ["canon","planeur","blinker","oscillator_alone","oscillator_one_block","oscillator_four_blocks"]:
             self.__grid = np.zeros((Lx,Ly))
-            if figure == "canon" :
+            if self.__figure == "canon" :
                 if Lx < 40 or Ly < 12:
-                    return self.restart("random")
-                figure_grid = generate_symbole(figure)#3x3
+                    self.__figure = "random"
+                    return self.restart()
+                figure_grid = generate_symbole(self.__figure)#3x3
                 self.__grid[Lx//2-18:Lx//2+18,Ly//2-4:Ly//2+5] = figure_grid
-            elif  figure == "planeur" :
+            elif self.__figure == "planeur" :
                 if Lx < 5 or Ly < 5:
-                    return self.restart("random")
-                figure_grid = generate_symbole(figure)#36x9
+                    self.__figure = "random"
+                    return self.restart()
+                figure_grid = generate_symbole(self.__figure)#36x9
                 self.__grid[Lx//2-1:Lx//2+2,Ly//2-1:Ly//2+2] = figure_grid
+            elif self.__figure == "blinker" :
+                if Lx < 5 or Ly < 5:
+                    self.__figure = "random"
+                    return self.restart()
+                figure_grid = generate_symbole(self.__figure)  # 36x9
+                self.__grid[Lx // 2 - 1:Lx // 2 + 2, Ly // 2 - 1:Ly // 2 + 2] = figure_grid
+            elif self.__figure in ["oscillator_alone","oscillator_one_block","oscillator_four_blocks"]:
+                figure_grid = generate_symbole(self.__figure)
+                self.__grid[Lx // 2 - 5:Lx // 2 + 6, Ly // 2 - 5:Ly // 2 + 6] = figure_grid
         else:
             # random initialization of the grid
             self.__grid = np.random.randint(0, 2, (Lx, Ly))
+        self.__figure_type.config(text="Figure type : {}".format(self.__figure))
         # initialization of the generation (number of move) and the displayed text showing this variable
         self.__generation = 1
         self.__text_generation.config(text="Generation : {}".format(self.__generation))
