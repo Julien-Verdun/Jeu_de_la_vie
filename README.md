@@ -10,6 +10,8 @@ This project has been implemented after the discovery of the game and has no oth
 The game allows you to generate a random grid, with both alive and dead units. You can also choose different interesting figures as the "gliders" or the "cannon" (which generate gliders).
 
 
+You can play the game by running the executable in the folder Jeu_de_la_vie_Canvas.
+
 ## Game demonstration
 
 
